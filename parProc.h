@@ -6,6 +6,6 @@
 // Description : Hello World in C, Ansi-style
 //============================================================================
 
-#define ARRSIZE 1000
+#define ARRSIZE 10000
 
 int parProc(int *arr);
