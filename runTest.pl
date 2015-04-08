@@ -6,6 +6,7 @@ use strict;
 my $MAXTHREAD = 32;
 my($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
 $year += 1900;
+$mon++;
 my $machineName = `uname -n`;
 chomp($machineName);
 my $fileName = "$machineName-$year-$mon-$mday-$hour:$min";
