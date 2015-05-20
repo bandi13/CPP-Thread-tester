@@ -1,26 +1,21 @@
 //============================================================================
-// Name        : parallelProc.cpp
+// Name        : primal.cpp
 // Author      : Andras Fekete
 // Version     :
 // Copyright   : Copyright 2015
-// Description : Hello World in C, Ansi-style
+// Description : Implementation of John Weiss' original parallel procedure
 //============================================================================
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <future>
-#include <iostream>
-#include <chrono>
+#include "commonIncludes.h"
+#include <cstddef>
 
-using namespace std;
-
-#include "parProc.h"
-
-int parProc(int *arr) {
-	if(unlikely(arr[0] < 0)) return false;
-	if(unlikely(arr[0] == 2)) return true;
+int *parProc(int *arr) {
+	arr[0] = 4*ARRSIZE;
+	if(unlikely(arr[0] < 0)) return NULL;
+	if(unlikely(arr[0] == 2)) return NULL;
 	bool prime = true;
+	UNUSED(prime);
 	for(int j = 3; j < arr[0] / 2; j += 2) if(unlikely(arr[0] % j == 0)) { prime = false; }
-	return prime;
+	return NULL;
 }
 

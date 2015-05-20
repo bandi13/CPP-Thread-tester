@@ -1,22 +1,15 @@
 //============================================================================
-// Name        : parallelProc.cpp
+// Name        : parProc.cpp
 // Author      : Andras Fekete
 // Version     :
 // Copyright   : Copyright 2015
-// Description : Hello World in C, Ansi-style
+// Description : Do a lot of non-branching assembly instructions in the body of the for loop.
 //============================================================================
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <future>
-#include <iostream>
-#include <chrono>
+#include "commonIncludes.h"
+#include <cstddef>
 
-using namespace std;
-
-#include "parProc.h"
-
-int parProc(int *arr) {
+int *parProc(int *arr) {
 	int sum1 = 0, sum2 = 0;
 
 	for(int i = 4; i < ARRSIZE - 4; i++) {
@@ -74,6 +67,6 @@ int parProc(int *arr) {
 		sum1 ^= arr[i+3] * sum2;
 		sum1 *= arr[i+4] * sum2;
 	}
-	return sum1 | sum2;
+	return NULL;
 }
 

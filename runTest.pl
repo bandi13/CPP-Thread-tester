@@ -12,13 +12,16 @@ chomp($machineName);
 my $fileName = "$machineName-$year-$mon-$mday-$hour:$min";
 if(!-d "data") { mkdir("data") || die "Can't create directory for data"; }
 my $FILE;
-open($FILE,">data/$fileName.csv") || die "Can't create a test log file.";
-&printPlaces($FILE, "numThread\t"); # get the header looking like in the program
-&printPlaces($FILE,`./main 1`);
-for(my $i = 2; $i <= $MAXTHREAD; $i++) {
-  &printPlaces($FILE,"$i\t" . `./main $i | sed -n '2p'`); # ignores the header
+my @progs = qw( "./main_parProc" "./main_primal" );
+foreach my $curProg (@progs) {
+	open($FILE,">data/$fileName-$curProg.csv") || die "Can't create a test log file.";
+	&printPlaces($FILE, "numThread\t"); # get the header looking like in the program
+	&printPlaces($FILE,`$curProg 1`);
+	for(my $i = 2; $i <= $MAXTHREAD; $i++) {
+		&printPlaces($FILE,"$i\t" . `$curProg $i | sed -n '2p'`); # ignores the header
+	}
+	close($FILE);
 }
-close($FILE);
 
 sub printPlaces() {
   my $FILE = shift;

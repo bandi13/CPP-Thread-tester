@@ -14,7 +14,7 @@
 #include <chrono>
 
 using namespace std;
-#include "parProc.h"
+#include "commonIncludes.h"
 
 void *pthreadParProc(void *arr) { return (void *)parProc((int *)arr); }
 
@@ -26,7 +26,7 @@ float runTest(int testNo, int numRuns, int *arr) {
 			for(int i = 0; i < numRuns; i++) parProc(arr);
 			break;
 		case 1: {
-			auto asyncfut = new future<int> [numRuns];
+			auto asyncfut = new future<int *> [numRuns];
 			for(int i = 0; i < numRuns; i++) asyncfut[i] = async(launch::async, parProc, arr);
 			for(int i = 0; i < numRuns; i++) asyncfut[i].get();
 			delete [] asyncfut;
