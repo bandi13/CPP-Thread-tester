@@ -1,20 +1,23 @@
 CXXFLAGS = -Wall -fmessage-length=0 --std=c++11
-OBJS =	parProc.o
+TARGET = main_parProc main_primal
 LIBS = -lpthread -fopenmp
 
-all:	main
+all:	$(TARGET)
 
 $(OBJS): %.o : %.cpp %.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-main:	main.cpp $(OBJS)
-	$(CXX) $(CXXFLAGS) -o main main.cpp $(OBJS) $(LIBS)
+main_parProc:	main.cpp parProc.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
-parProc.s: parProc.cpp parProc.h
-	$(CXX) $(CXXFLAGS) -o parProc.s -S parProc.cpp
+main_primal:	main.cpp primal.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+parProc.s: %.s : %.cpp %.h
+	$(CXX) $(CXXFLAGS) -o $@ -S $<
 
 debug: CXXFLAGS += -Og -pg
 debug: main
 
 clean:
-	rm -f main parProc.s $(OBJS)
+	rm -f $(TARGET) parProc.s *.o

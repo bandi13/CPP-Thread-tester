@@ -18,6 +18,7 @@ using namespace std;
 
 void *pthreadParProc(void *arr) { return (void *)parProc((int *)arr); }
 
+#define TOTALTESTS 5
 float runTest(int testNo, int numRuns, int *arr) {
 	auto startTime = chrono::system_clock::now();
 	switch(testNo) {
@@ -70,13 +71,13 @@ int main(int argc, char *argv[]) {
 	for(int i = 0; i < ARRSIZE; i++) arr[i] = rand();
 
 	int numProc = atoi(argv[1]);
-	float data[5];
-	for(int i = 0; i < 5; i++) data[i] = 0.0;
+	float data[TOTALTESTS];
+	for(int i = 0; i < TOTALTESTS; i++) data[i] = 0.0;
 	for(int j = 0; j < NUMRUNS; j++) {
-		for(int i = 0; i < 5; i++) { data[i] += runTest(i,numProc,arr); }
+		for(int i = 0; i < TOTALTESTS; i++) { data[i] += runTest(i,numProc,arr); }
 	}
 	cout << "serial\tasync\tOpenMP\tpthread\tthread" << endl;
-	for(int i = 0; i < 5; i++) cout << (data[i] / NUMRUNS) << '\t';
+	for(int i = 0; i < TOTALTESTS; i++) cout << (data[i] / NUMRUNS) << '\t';
 	cout << endl;
 
 	delete [] arr;
