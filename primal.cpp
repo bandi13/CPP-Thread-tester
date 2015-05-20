@@ -10,7 +10,7 @@
 #include <cstddef>
 
 int *parProc(int *arr) {
-	arr[0] = 4*ARRSIZE;
+	arr[0] = 32*ARRSIZE;
 	if(unlikely(arr[0] < 0)) return NULL;
 	if(unlikely(arr[0] == 2)) return NULL;
 	bool prime = true;
