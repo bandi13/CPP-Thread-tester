@@ -14,7 +14,34 @@ $comps{'linux02.mcs.sdsmt.edu'} = "Intel i7-2600 @ 3.4GHz 4-core (HT)";
 $comps{'skynet.mcs.sdsmt.edu'} = "Intel Xeon E5-2630 @ 2.3CHz 12-core (HT)";
 $comps{'guinness'} = "Intel Xeon E5-2687W @ 3.1GHz 16-core (HT)";
 $comps{'image.mcs.sdsmt.edu'} = "Intel Q9400 @ 2.7GHz 4-core (no HT)";
+$comps{'giotto'} = "Intel E5-4640 256-core (no HT)";
 
+# Generate table that shows the speedup
+foreach my $file(<"data/*.csv">) {
+	if(!($file =~ m/-speedup.csv$/)) {
+		my $outFile = $file;
+		$outFile =~ s/\.csv/-speedup.csv/g;
+		if(!-e $outFile) {
+			my $INFH;
+			my $OUTFH;
+			open $INFH,$file || die "Can't open file: $file\n";
+			open $OUTFH,">$outFile" || die "Can't create file: $outFile\n";
+			$_ = <$INFH>;
+			my @data = split(/\t/,$_);
+			print $OUTFH $data[0] . "\t". join("\t",@data[2..$#data]) . "\n";
+			while(<$INFH>) {
+				@data = split(/\t/,$_);
+				print $OUTFH $data[0];
+				for(my $i = 2; $i < $#data; $i++) { print $OUTFH "\t" . ($data[1] / $data[$i]); }
+				print $OUTFH "\n";
+			}
+			close $OUTFH;
+			close $INFH;
+		}
+	}
+}
+
+# Plot all the tables
 foreach my $file (<"data/*.csv">) {
 	if(!-e "$file.png") {
 		print "Creating $file.png...\n";
@@ -25,6 +52,9 @@ foreach my $file (<"data/*.csv">) {
 		my $testID = $file;
 		$testID =~ s/.*\d-//g;
 		$testID =~ s/\.csv$//g;
+		my $ylabel = "time";
+		my $totalPoints = 6;
+		if($testID =~ m/speedup/) { $ylabel = "speedup"; $totalPoints = 5; }
 		my $PLOT;
 		open $PLOT, '|-','gnuplot';
 		print $PLOT <<EOF;
@@ -34,14 +64,14 @@ set style data linespoints
 set xtics  norangelimit
 set xtics   ()
 set title "$compID -- $testID"
-set ylabel "time"
+set ylabel "$ylabel"
 set xlabel "Number of threads"
 x = 0.0
 set output '$file.png'
 EOF
 		print $PLOT "plot";
-		for(my $i = 2; $i < 6; $i++) { print $PLOT " '$file' using 1:$i with linespoints,"; }
-		print $PLOT " '$file' using 1:6 with linespoints\n";
+		for(my $i = 2; $i < $totalPoints; $i++) { print $PLOT " '$file' using 1:$i with linespoints,"; }
+		print $PLOT " '$file' using 1:$totalPoints with linespoints\n";
 #		print $PLOT "f(x) = m*x + b\n";
 #		print $PLOT "fit f(x)";
 #		for(my $i = 2; $i < 6; $i++) { print $PLOT " '$file' using 1:$i via m,b,"; }
