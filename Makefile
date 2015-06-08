@@ -16,11 +16,11 @@ main_prime:	main.cpp prime.o
 main_prime-nohints:	main.cpp prime-nohints.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
-parProc.s: %.s : %.cpp %.h
+asmProc.s: %.s : %.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -S $<
 
 debug: CXXFLAGS += -Og -pg
 debug: main
 
 clean:
-	rm -f $(TARGET) parProc.s *.o
+	rm -f $(TARGET) asmProc.s *.o
