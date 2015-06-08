@@ -56,13 +56,14 @@ foreach my $file (<"data/*.csv">) {
 		my $totalPoints = `tail -n 1 $file | awk '{ print NF}'`;
 		chomp($totalPoints);
 		print "$file -> $totalPoints\n";
-		if($testID =~ m/speedup/) { $ylabel = "speedup"; }
+		if($testID =~ m/speedup/) { $ylabel = "speedup"; $testID =~ s/-speedup//g; }
 		my $PLOT;
 		open $PLOT, '|-','gnuplot';
 		print $PLOT <<EOF;
 set term png
 set key inside right top vertical Right noreverse enhanced autotitle columnhead nobox
 set style data linespoints
+set key bottom right
 set xtics  norangelimit
 set xtics   ()
 set title "$compID -- $testID"
