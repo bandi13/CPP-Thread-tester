@@ -12,13 +12,13 @@
 #include <future>
 #include <iostream>
 #include <chrono>
+#include <boost/thread.hpp>
 
 using namespace std;
 #include "commonIncludes.h"
 
 void *pthreadParProc(void *arr) { return (void *)parProc((int *)arr); }
 
-#define TOTALTESTS 5
 float runTest(int testNo, int numRuns, int *arr) {
 	auto startTime = chrono::system_clock::now();
 	switch(testNo) {
@@ -52,6 +52,13 @@ float runTest(int testNo, int numRuns, int *arr) {
 			delete [] threads;
 			}
 			break;
+		case 5: {
+			boost::thread *boostThreads = new boost::thread[numRuns];
+			for(int i = 0; i < numRuns; i++) boostThreads[i] = boost::thread(parProc,arr);
+			for(int i = 0; i < numRuns; i++) boostThreads[i].join();
+			delete [] boostThreads;
+			}
+			break;
 		default: return 0;
 	}
 	auto endTime = chrono:: system_clock::now();
@@ -61,6 +68,7 @@ float runTest(int testNo, int numRuns, int *arr) {
 }
 
 #define NUMRUNS 10
+#define TOTALTESTS 6
 int main(int argc, char *argv[]) {
 	if(argc < 2) {
 		cerr << "Usage : " << argv[0] << " <procCount>" << endl;
@@ -76,7 +84,7 @@ int main(int argc, char *argv[]) {
 	for(int j = 0; j < NUMRUNS; j++) {
 		for(int i = 0; i < TOTALTESTS; i++) { data[i] += runTest(i,numProc,arr); }
 	}
-	cout << "serial\tasync\tOpenMP\tpthread\tthread" << endl;
+	cout << "serial\tasync\tOpenMP\tpthread\tthread\tboostThread" << endl;
 	for(int i = 0; i < TOTALTESTS; i++) cout << (data[i] / NUMRUNS) << '\t';
 	cout << endl;
 

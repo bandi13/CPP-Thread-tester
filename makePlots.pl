@@ -53,8 +53,10 @@ foreach my $file (<"data/*.csv">) {
 		$testID =~ s/.*\d-//g;
 		$testID =~ s/\.csv$//g;
 		my $ylabel = "time";
-		my $totalPoints = 6;
-		if($testID =~ m/speedup/) { $ylabel = "speedup"; $totalPoints = 5; }
+		my $totalPoints = `tail -n 1 $file | awk '{ print NF}'`;
+		chomp($totalPoints);
+		print "$file -> $totalPoints\n";
+		if($testID =~ m/speedup/) { $ylabel = "speedup"; }
 		my $PLOT;
 		open $PLOT, '|-','gnuplot';
 		print $PLOT <<EOF;

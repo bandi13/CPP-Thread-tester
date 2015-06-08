@@ -1,6 +1,6 @@
 CXXFLAGS = -Wall -fmessage-length=0 --std=c++11
 TARGET = main_parProc main_prime
-LIBS = -lpthread -fopenmp
+LIBS = -lpthread -fopenmp -lboost_system -lboost_thread
 
 all:	$(TARGET)
 
