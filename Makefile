@@ -7,16 +7,16 @@ all:	$(TARGET)
 $(OBJS): %.o : %.cpp %.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-main_asmProc:	main.cpp asmProc.o
+main_asmProc:	main.cpp asmProc.o commonIncludes.h
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
-main_prime:	main.cpp prime.o
+main_prime:	main.cpp prime.o commonIncludes.h
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
-main_prime-nohints:	main.cpp prime-nohints.o
+main_prime-nohints:	main.cpp prime-nohints.o commonIncludes.h
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
-asmProc.s: %.s : %.cpp
+asmProc.s: %.s : %.cpp commonIncludes.h
 	$(CXX) $(CXXFLAGS) -o $@ -S $<
 
 debug: CXXFLAGS += -Og -pg

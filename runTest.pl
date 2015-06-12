@@ -9,7 +9,7 @@ $year += 1900;
 $mon++;
 my $machineName = `uname -n`;
 chomp($machineName);
-my $fileName = "$machineName-$year-$mon-$mday-$hour:$min";
+my $fileName = "$machineName-$year-$mon-$mday-$hour-$min";
 if(!-d "data") { mkdir("data") || die "Can't create directory for data"; }
 my $FILE;
 my @progs = qw( asmProc prime prime-nohints );
