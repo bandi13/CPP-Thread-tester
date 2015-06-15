@@ -15,17 +15,7 @@ my $FILE;
 my @progs = qw( asmProc prime );
 foreach my $curProg (@progs) {
 	open($FILE,">data/$fileName-$curProg.csv") || die "Can't create a test log file.";
-	&printPlaces($FILE, "numThread\t"); # get the header looking like in the program
-	&printPlaces($FILE,`./main_$curProg 1`);
-	for(my $i = 2; $i <= $MAXTHREAD; $i++) {
-		&printPlaces($FILE,"$i\t" . `./main_$curProg $i | sed -n '2p'`); # ignores the header
-	}
+	my @str = `./main_$curProg $MAXTHREAD`;
+	for(my $i = 0; $i <= $#str; $i++) { print $str[$i]; print $FILE $str[$i]; }
 	close($FILE);
-}
-
-sub printPlaces() {
-  my $FILE = shift;
-  my $str = shift;
-  print $str;
-  print $FILE $str;
 }

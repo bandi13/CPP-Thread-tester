@@ -7,10 +7,10 @@ all:	$(TARGET)
 $(OBJS): %.o : %.cpp %.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-main_asmProc:	main.cpp asmProc.o commonIncludes.h
+main_asmProc:	main.cpp asmProc.cpp commonIncludes.h
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
-main_prime:	main.cpp prime.o commonIncludes.h
+main_prime:	main.cpp prime.cpp commonIncludes.h
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
 asmProc.s: %.s : %.cpp commonIncludes.h

@@ -32,7 +32,7 @@ foreach my $file(<"data/*.csv">) {
 			while(<$INFH>) {
 				@data = split(/\t/,$_);
 				print $OUTFH $data[0];
-				for(my $i = 2; $i < $#data; $i++) { print $OUTFH "\t" . ($data[1] / $data[$i]); }
+				for(my $i = 2; $i <= $#data; $i++) { print $OUTFH "\t" . ($data[1] / $data[$i]); }
 				print $OUTFH "\n";
 			}
 			close $OUTFH;
