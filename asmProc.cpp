@@ -11,7 +11,7 @@
 
 bool parProc(int n) {
 	int sum1 = 0x1000, sum2 = 1;
-	n = n >> 8;
+	n >>= 4;
 
 	for(int i = 0; i < n; i++) {
 		sum1 += sum2;

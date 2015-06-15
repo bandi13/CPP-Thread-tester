@@ -17,75 +17,96 @@
 using namespace std;
 #include "commonIncludes.h"
 
+#define NUMRUNS 2
+#define TOTALTESTS 6
+
 void *pthreadParProc(void *arr) { return (void *)parProc((int)arr); }
+typedef union {
+	int tests[TOTALTESTS];
+	struct {
+		int serial;
+		int async;
+		int omp;
+		int pthread;
+		int thread;
+		int boost;
+	};
+} data_t;
 
-float runTest(int testNo, int numRuns, int n) {
-	auto startTime = chrono::system_clock::now();
-	switch(testNo) {
-		case 0:
-			for(int i = 0; i < numRuns; i++) parProc(n);
-			break;
-		case 1: {
-			auto asyncfut = new future<bool> [numRuns];
-			for(int i = 0; i < numRuns; i++) asyncfut[i] = async(launch::async, parProc, n);
-			for(int i = 0; i < numRuns; i++) asyncfut[i].get();
-			delete [] asyncfut;
-			}
-			break;
-		case 2: {
-			#pragma omp parallel for
-			for(int i = 0; i < numRuns; i++) parProc(n);
-			}
-			break;
-		case 3: {
-			pthread_t *pthreads = new pthread_t[numRuns];
-			int retVal;
-			for(int i = 0; i < numRuns; i++) pthread_create(&pthreads[i], NULL, pthreadParProc, (void*)n);
-			for(int i = 0; i < numRuns; i++) pthread_join(pthreads[i],(void **)&retVal);
-			delete [] pthreads;
-			}
-			break;
-		case 4: {
-			thread *threads = new thread[numRuns];
-			for(int i = 0; i < numRuns; i++) threads[i] = thread(parProc,n);
-			for(int i = 0; i < numRuns; i++) threads[i].join();
-			delete [] threads;
-			}
-			break;
-		case 5: {
-			boost::thread *boostThreads = new boost::thread[numRuns];
-			for(int i = 0; i < numRuns; i++) boostThreads[i] = boost::thread(parProc,n);
-			for(int i = 0; i < numRuns; i++) boostThreads[i].join();
-			delete [] boostThreads;
-			}
-			break;
-		default: return 0;
+data_t runTest(int numRuns, int n) {
+	data_t ret;
+	{
+		auto startTime = chrono::system_clock::now();
+		for(int i = 0; i < numRuns; i++) parProc(n);
+		chrono::duration<double, std::micro> diff = chrono::system_clock::now() - startTime;
+		ret.serial = diff.count();
 	}
-	auto endTime = chrono:: system_clock::now();
+	{
+		auto startTime = chrono::system_clock::now();
+		auto asyncfut = new future<bool> [numRuns];
+		for(int i = 0; i < numRuns; i++) asyncfut[i] = async(launch::async, parProc, n);
+		for(int i = 0; i < numRuns; i++) asyncfut[i].get();
+		delete [] asyncfut;
+		chrono::duration<double, std::micro> diff = chrono::system_clock::now() - startTime;
+		ret.async = diff.count();
+	}
+	{
+		auto startTime = chrono::system_clock::now();
+		#pragma omp parallel for
+		for(int i = 0; i < numRuns; i++) parProc(n);
+		chrono::duration<double, std::micro> diff = chrono::system_clock::now() - startTime;
+		ret.omp = diff.count();
+	}
+	{
+		auto startTime = chrono::system_clock::now();
+		pthread_t *pthreads = new pthread_t[numRuns];
+		int retVal;
+		for(int i = 0; i < numRuns; i++) pthread_create(&pthreads[i], NULL, pthreadParProc, (void*)n);
+		for(int i = 0; i < numRuns; i++) pthread_join(pthreads[i],(void **)&retVal);
+		delete [] pthreads;
+		chrono::duration<double, std::micro> diff = chrono::system_clock::now() - startTime;
+		ret.pthread = diff.count();
+	}
+	{
+		auto startTime = chrono::system_clock::now();
+		thread *threads = new thread[numRuns];
+		for(int i = 0; i < numRuns; i++) threads[i] = thread(parProc,n);
+		for(int i = 0; i < numRuns; i++) threads[i].join();
+		delete [] threads;
+		chrono::duration<double, std::micro> diff = chrono::system_clock::now() - startTime;
+		ret.thread = diff.count();
+	}
+	{
+		auto startTime = chrono::system_clock::now();
+		boost::thread *boostThreads = new boost::thread[numRuns];
+		for(int i = 0; i < numRuns; i++) boostThreads[i] = boost::thread(parProc,n);
+		for(int i = 0; i < numRuns; i++) boostThreads[i].join();
+		delete [] boostThreads;
+		chrono::duration<double, std::micro> diff = chrono::system_clock::now() - startTime;
+		ret.boost = diff.count();
+	}
 
-	chrono::duration<double> diff = endTime - startTime;
-	return diff.count() * 1000;
+	return ret;
 }
 
-#define NUMRUNS 10
-#define TOTALTESTS 6
 int main(int argc, char *argv[]) {
 	if(argc < 2) {
 		cerr << "Usage : " << argv[0] << " <procCount>" << endl;
 		return EXIT_FAILURE;
 	}
 
-	auto arr = new int[TOTALTESTS];
-	for(int i = 0; i < TOTALTESTS; i++) arr[i] = 2 * i + 10000001;
+	auto arr = new int[NUMRUNS];
+	for(int i = 0; i < NUMRUNS; i++) arr[i] = 2 * i + 1000001;
 
 	int numProc = atoi(argv[1]);
-	float data[TOTALTESTS];
-	for(int i = 0; i < TOTALTESTS; i++) data[i] = 0.0;
+	data_t data;
+	for(int i = 0; i < TOTALTESTS; i++) data.tests[i] = 0.0;
 	for(int j = 0; j < NUMRUNS; j++) {
-		for(int i = 0; i < TOTALTESTS; i++) { data[i] += runTest(i,numProc,arr[i]); }
+		data_t curTest = runTest(numProc,arr[j]);
+		for(int i = 0; i < TOTALTESTS; i++) data.tests[i] += curTest.tests[i];
 	}
 	cout << "serial\tasync\tOpenMP\tpthread\tthread\tboostThread" << endl;
-	for(int i = 0; i < TOTALTESTS; i++) cout << (data[i] / NUMRUNS) << '\t';
+	for(int i = 0; i < TOTALTESTS; i++) cout << ((float)data.tests[i] / 1000.0 / NUMRUNS) << '\t';
 	cout << endl;
 
 	delete [] arr;
