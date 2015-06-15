@@ -12,7 +12,7 @@ chomp($machineName);
 my $fileName = "$machineName-$year-$mon-$mday-$hour-$min";
 if(!-d "data") { mkdir("data") || die "Can't create directory for data"; }
 my $FILE;
-my @progs = qw( asmProc prime prime-nohints );
+my @progs = qw( asmProc prime );
 foreach my $curProg (@progs) {
 	open($FILE,">data/$fileName-$curProg.csv") || die "Can't create a test log file.";
 	&printPlaces($FILE, "numThread\t"); # get the header looking like in the program

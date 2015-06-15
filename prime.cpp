@@ -9,12 +9,10 @@
 #include "commonIncludes.h"
 #include <cstddef>
 
-int *parProc(int *arr) {
-	arr[0] = 32*ARRSIZE;
-	if(unlikely(arr[0] <= 2)) return NULL;
+bool parProc(int n) {
+	if(n <= 2) return NULL;
 	bool prime = true;
-	UNUSED(prime);
-	for(int j = 3; j < arr[0] / 2; j += 2) if(unlikely(arr[0] % j == 0)) { prime = false; }
-	return NULL;
+	for(int j = 3; j < n / 2; j += 2) if(n % j == 0) { prime = false; }
+	return prime;
 }
 

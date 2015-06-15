@@ -9,64 +9,49 @@
 #include "commonIncludes.h"
 #include <cstddef>
 
-int *parProc(int *arr) {
-	int sum1 = 0, sum2 = 0;
+bool parProc(int n) {
+	int sum1 = 0x1000, sum2 = 1;
+	n = n >> 8;
 
-	for(int i = 4; i < ARRSIZE - 4; i++) {
-		sum1 += arr[i];
-		sum1 += arr[i+1];
-		sum1 += arr[i+2];
-		sum1 += arr[i+3];
-		sum1 *= arr[i+4];
+	for(int i = 0; i < n; i++) {
+		sum1 += sum2;
+		sum2 += sum2 + 1;
+		sum1 *= sum2;
 		sum1 >>= 4;
-		sum1 += arr[i];
-		sum1 += arr[i-1];
-		sum1 += arr[i-2];
-		sum1 += arr[i-3];
-		sum1 *= arr[i-4];
+		sum2 += n;
+		sum1 ^= sum2;
+		sum2 ^= sum2 + 1;
+		sum1 *= sum2;
 		sum1 >>= 4;
-		sum1 ^= arr[i];
-		sum1 ^= arr[i+1];
-		sum1 ^= arr[i+2];
-		sum1 ^= arr[i+3];
-		sum1 *= arr[i+4];
 
-		sum2 += arr[i];
-		sum2 += arr[i+1];
-		sum2 += arr[i+2];
-		sum2 += arr[i+3];
-		sum2 *= arr[i+4];
-		sum2 >>= 4;
-		sum2 += arr[i];
-		sum2 += arr[i-1];
-		sum2 += arr[i-2];
-		sum2 += arr[i-3];
-		sum2 *= arr[i-4];
-		sum2 >>= 4;
-		sum2 ^= arr[i];
-		sum2 ^= arr[i+1];
-		sum2 ^= arr[i+2];
-		sum2 ^= arr[i+3];
-		sum2 *= arr[i+4];
+		sum1 += sum2;
+		sum2 += sum2 + 1;
+		sum1 *= sum2;
+		sum1 >>= 4;
+		sum2 += n;
+		sum1 ^= sum2;
+		sum2 ^= sum2 + 1;
+		sum1 *= sum2;
+		sum1 >>= 4;
 
-		sum1 += arr[i] * sum2;
-		sum1 += arr[i+1] * sum2;
-		sum1 += arr[i+2] * sum2;
-		sum1 += arr[i+3] * sum2;
-		sum1 *= arr[i+4] * sum2;
+		sum1 += n * sum2;
+		sum1 += (n+1) * sum2;
+		sum1 += (n+2) * sum2;
+		sum1 += (n+3) * sum2;
+		sum1 *= (n+4) * sum2;
 		sum1 >>= 4;
-		sum1 += arr[i] * sum2;
-		sum1 += arr[i-1] * sum2;
-		sum1 += arr[i-2] * sum2;
-		sum1 += arr[i-3] * sum2;
-		sum1 *= arr[i-4] * sum2;
+		sum1 += n * sum2;
+		sum1 += (n-1) * sum2;
+		sum1 += (n-2) * sum2;
+		sum1 += (n-3) * sum2;
+		sum1 *= (n-4) * sum2;
 		sum1 >>= 4;
-		sum1 ^= arr[i] * sum2;
-		sum1 ^= arr[i+1] * sum2;
-		sum1 ^= arr[i+2] * sum2;
-		sum1 ^= arr[i+3] * sum2;
-		sum1 *= arr[i+4] * sum2;
+		sum1 ^= n * sum2;
+		sum1 ^= (n+1) * sum2;
+		sum1 ^= (n+2) * sum2;
+		sum1 ^= (n+3) * sum2;
+		sum1 *= (n+4) * sum2;
 	}
-	return NULL;
+	return sum1 | sum2;
 }
 
