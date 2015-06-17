@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 	auto arr = new int[NUMRUNS];
 	for(int i = 0; i < NUMRUNS; i++) arr[i] = 2 * i + primeNum;
 
-	cout << "numProc\tserial\tasync\tOpenMP\tpthread\tthread\tboostThread" << endl;
+	cout << "serial\tasync\tOpenMP\tpthread\tthread\tboostThread" << endl;
 
 	int numProc = atoi(argv[1]);
 	data_ut data;
@@ -117,7 +117,6 @@ int main(int argc, char *argv[]) {
 
 		for(int i = 0; i < TOTALTESTS; i++) data.tests[i] += curTest.tests[i];
 	}
-	cout << numProc;
 	for(int i = 0; i < TOTALTESTS; i++) cout << '\t' << ((float)std::chrono::duration_cast<std::chrono::microseconds>(data.tests[i]).count() / 1000.0 / NUMRUNS);
 	cout << endl;
 
