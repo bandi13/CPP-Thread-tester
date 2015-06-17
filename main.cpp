@@ -12,34 +12,49 @@
 #include <future>
 #include <iostream>
 #include <chrono>
-#include <boost/thread.hpp>
+#ifndef NOBOOST
+	#include <boost/thread.hpp>
+	#define TOTALTESTS 6
+#else
+	#define TOTALTESTS 5
+#endif
 
 using namespace std;
 #include "commonIncludes.h"
 
 #define NUMRUNS 2
-#define TOTALTESTS 6
 
 void *pthreadParProc(void *arr) { return (void *)parProc((int)arr); }
-typedef struct data_s {
-	std::chrono::duration<double, std::micro> serial;
-	std::chrono::duration<double, std::micro> async;
-	std::chrono::duration<double, std::micro> omp;
-	std::chrono::duration<double, std::micro> pthread;
-	std::chrono::duration<double, std::micro> thread;
-	std::chrono::duration<double, std::micro> boost;
-} data_st;
 typedef union data_u {
-	std::chrono::duration<double, std::micro> tests[TOTALTESTS];
-	data_st datas;
+	long tests[TOTALTESTS];
+	struct {
+		long serial;
+		long async;
+		long omp;
+		long pthread;
+		long thread;
+#ifndef NOBOOST
+		long boost;
+#endif
+	};
 } data_ut;
+string testNames[] = {
+	"serial"
+	,"async"
+	,"omp"
+	,"pthread"
+	,"thread"
+#ifndef NOBOOST
+	,"boost"
+#endif
+};
 
 data_ut runTest(int numRuns, int n) {
 	data_ut ret;
 	{
 		auto startTime = chrono::system_clock::now();
 		for(int i = 0; i < numRuns; i++) parProc(n);
-		ret.datas.serial = chrono::system_clock::now() - startTime;
+		ret.serial = std::chrono::duration_cast<std::chrono::microseconds>(chrono::system_clock::now() - startTime).count();
 	}
 	{
 		auto startTime = chrono::system_clock::now();
@@ -47,13 +62,13 @@ data_ut runTest(int numRuns, int n) {
 		for(int i = 0; i < numRuns; i++) asyncfut[i] = async(launch::async, parProc, n);
 		for(int i = 0; i < numRuns; i++) asyncfut[i].get();
 		delete [] asyncfut;
-		ret.datas.async = chrono::system_clock::now() - startTime;
+		ret.async = std::chrono::duration_cast<std::chrono::microseconds>(chrono::system_clock::now() - startTime).count();
 	}
 	{
 		auto startTime = chrono::system_clock::now();
 		#pragma omp parallel for
 		for(int i = 0; i < numRuns; i++) parProc(n);
-		ret.datas.omp = chrono::system_clock::now() - startTime;
+		ret.omp = std::chrono::duration_cast<std::chrono::microseconds>(chrono::system_clock::now() - startTime).count();
 	}
 	{
 		auto startTime = chrono::system_clock::now();
@@ -62,7 +77,7 @@ data_ut runTest(int numRuns, int n) {
 		for(int i = 0; i < numRuns; i++) pthread_create(&pthreads[i], NULL, pthreadParProc, (void*)n);
 		for(int i = 0; i < numRuns; i++) pthread_join(pthreads[i],(void **)&retVal);
 		delete [] pthreads;
-		ret.datas.pthread = chrono::system_clock::now() - startTime;
+		ret.pthread = std::chrono::duration_cast<std::chrono::microseconds>(chrono::system_clock::now() - startTime).count();
 	}
 	{
 		auto startTime = chrono::system_clock::now();
@@ -70,16 +85,18 @@ data_ut runTest(int numRuns, int n) {
 		for(int i = 0; i < numRuns; i++) threads[i] = thread(parProc,n);
 		for(int i = 0; i < numRuns; i++) threads[i].join();
 		delete [] threads;
-		ret.datas.thread = chrono::system_clock::now() - startTime;
+		ret.thread = std::chrono::duration_cast<std::chrono::microseconds>(chrono::system_clock::now() - startTime).count();
 	}
+#ifndef NOBOOST
 	{
 		auto startTime = chrono::system_clock::now();
 		boost::thread *boostThreads = new boost::thread[numRuns];
 		for(int i = 0; i < numRuns; i++) boostThreads[i] = boost::thread(parProc,n);
 		for(int i = 0; i < numRuns; i++) boostThreads[i].join();
 		delete [] boostThreads;
-		ret.datas.boost = chrono::system_clock::now() - startTime;
+		ret.boost = std::chrono::duration_cast<std::chrono::microseconds>(chrono::system_clock::now() - startTime).count();
 	}
+#endif
 
 	return ret;
 }
@@ -107,17 +124,19 @@ int main(int argc, char *argv[]) {
 	auto arr = new int[NUMRUNS];
 	for(int i = 0; i < NUMRUNS; i++) arr[i] = 2 * i + primeNum;
 
-	cout << "serial\tasync\tOpenMP\tpthread\tthread\tboostThread" << endl;
+	cout << testNames[0];
+	for(int i = 1; i < TOTALTESTS; i++) cout << "\t" << testNames[i];
+	cout << endl;
 
 	int numProc = atoi(argv[1]);
 	data_ut data;
-	for(int i = 0; i < TOTALTESTS; i++) data.tests[i] = std::chrono::duration<double, std::micro>::zero();
+	for(int i = 0; i < TOTALTESTS; i++) data.tests[i] = 0;
 	for(int j = 0; j < NUMRUNS; j++) {
 		data_ut curTest = runTest(numProc,arr[j]);
 
 		for(int i = 0; i < TOTALTESTS; i++) data.tests[i] += curTest.tests[i];
 	}
-	for(int i = 0; i < TOTALTESTS; i++) cout << '\t' << ((float)std::chrono::duration_cast<std::chrono::microseconds>(data.tests[i]).count() / 1000.0 / NUMRUNS);
+	for(int i = 0; i < TOTALTESTS; i++) cout << '\t' << ((float)data.tests[i] / 1000.0 / NUMRUNS);
 	cout << endl;
 
 	cout << flush;
