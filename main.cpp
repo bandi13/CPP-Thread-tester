@@ -136,7 +136,8 @@ int main(int argc, char *argv[]) {
 
 		for(int i = 0; i < TOTALTESTS; i++) data.tests[i] += curTest.tests[i];
 	}
-	for(int i = 0; i < TOTALTESTS; i++) cout << ((float)data.tests[i] / 1000.0 / NUMRUNS);
+	char comma = '\0';
+	for(int i = 0; i < TOTALTESTS; i++) { cout << comma << ((float)data.tests[i] / 1000.0 / NUMRUNS); comma = '\t'; }
 	cout << endl;
 
 	cout << flush;
