@@ -25,7 +25,7 @@ foreach my $curProg (@progs) {
 }
 foreach my $curProg (@progs) {
 	open($FILE,">data/$fileName-$curProg-difficulty.csv") || die "Can't create a test log file.";
-	&printPlaces($FILE, "numThread\t"); # get the header looking like in the program
+	&printPlaces($FILE, "difficulty\t"); # get the header looking like in the program
 	&printPlaces($FILE,`./main_$curProg 8 1`);
 	for(my $i = 2; $i <= $MAXDIFFICULTY; $i++) {
 		&printPlaces($FILE,"$i\t" . `./main_$curProg 8 $i | sed -n '2p'`); # ignores the header
