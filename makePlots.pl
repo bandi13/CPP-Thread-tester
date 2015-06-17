@@ -9,12 +9,13 @@ $comps{'andras-X202E'} = "Intel Core i3-3217U @ 1.8GHz 4-core (HT)";
 $comps{'tvbox'} = "AMD Athlon 64 X2 3600+ 2-core (no HT)";
 $comps{'c0.cs.unh.edu'} = "Intel Xeon X7460 @ 2.66GHz 12-core (no HT)";
 $comps{'agate.cs.unh.edu'} = "Intel Xeon E5-2687Wv3 @ 3.1GHz 20-core (no HT)";
+$comps{'stepmania'} = "Intel Pentium D @ 3.00GHz 2-core (no HT)";
 $comps{'linux101.mcs.sdsmt.edu'} = "Intel Q6600 @ 2.4GHz 4-core (no HT)";
 $comps{'linux02.mcs.sdsmt.edu'} = "Intel i7-2600 @ 3.4GHz 4-core (HT)";
 $comps{'skynet.mcs.sdsmt.edu'} = "Intel Xeon E5-2630 @ 2.3CHz 12-core (HT)";
 $comps{'guinness'} = "Intel Xeon E5-2687W @ 3.1GHz 16-core (HT)";
 $comps{'image.mcs.sdsmt.edu'} = "Intel Q9400 @ 2.7GHz 4-core (no HT)";
-$comps{'giotto'} = "Intel E5-4640 256-core (no HT)";
+$comps{'giotto'} = "Intel E5-4640 @ 2.40GHz 256-core (no HT)";
 
 # Generate table that shows the speedup
 foreach my $file(<"data/*.csv">) {
@@ -22,6 +23,7 @@ foreach my $file(<"data/*.csv">) {
 		my $outFile = $file;
 		$outFile =~ s/\.csv/-speedup.csv/g;
 		if(!-e $outFile) {
+			print "Creating $file-speedup.csv...\n";
 			my $INFH;
 			my $OUTFH;
 			open $INFH,$file || die "Can't open file: $file\n";
@@ -53,9 +55,11 @@ foreach my $file (<"data/*.csv">) {
 		$testID =~ s/.*\d-//g;
 		$testID =~ s/\.csv$//g;
 		my $ylabel = "time";
+		my $xlabel = "Number of threads";
 		my $totalPoints = `tail -n 1 $file | awk '{ print NF}'`;
 		chomp($totalPoints);
 		if($testID =~ m/speedup/) { $ylabel = "speedup"; $testID =~ s/-speedup//g; }
+		if($testID =~ m/difficulty/) { $xlabel = "difficulty"; $testID =~ s/-difficulty//g; }
 		my $PLOT;
 		open $PLOT, '|-','gnuplot';
 		print $PLOT <<EOF;
@@ -67,7 +71,7 @@ set xtics  norangelimit
 set xtics   ()
 set title "$compID -- $testID"
 set ylabel "$ylabel"
-set xlabel "Number of threads"
+set xlabel "$xlabel"
 x = 0.0
 set output '$file.png'
 EOF
