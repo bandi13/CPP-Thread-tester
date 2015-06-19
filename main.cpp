@@ -24,7 +24,7 @@ using namespace std;
 
 #define NUMRUNS 2
 
-void *pthreadParProc(void *arr) { return (void *)parProc((int)arr); }
+void *pthreadParProc(void *arr) { return (void *)parProc(*((int *)arr)); }
 typedef union data_u {
 	long tests[TOTALTESTS];
 	struct {
@@ -74,7 +74,7 @@ data_ut runTest(int numRuns, int n) {
 		auto startTime = chrono::system_clock::now();
 		pthread_t *pthreads = new pthread_t[numRuns];
 		int retVal;
-		for(int i = 0; i < numRuns; i++) pthread_create(&pthreads[i], NULL, pthreadParProc, (void*)n);
+		for(int i = 0; i < numRuns; i++) pthread_create(&pthreads[i], NULL, pthreadParProc, (void*)&n);
 		for(int i = 0; i < numRuns; i++) pthread_join(pthreads[i],(void **)&retVal);
 		delete [] pthreads;
 		ret.pthread = std::chrono::duration_cast<std::chrono::microseconds>(chrono::system_clock::now() - startTime).count();
