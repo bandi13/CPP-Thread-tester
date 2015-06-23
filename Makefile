@@ -1,5 +1,5 @@
 CXXFLAGS = -Wall -fmessage-length=0 --std=c++11 -fpermissive -O2
-TARGET = main_asmProc main_prime
+TARGET = main_asmProc main_prime main_nop
 LIBS = -lpthread -fopenmp -lboost_system -lboost_thread
 
 all:	$(TARGET)
@@ -11,6 +11,9 @@ main_asmProc:	main.cpp asmProc.cpp commonIncludes.h
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
 main_prime:	main.cpp prime.cpp commonIncludes.h
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+
+main_nop:	main.cpp nop.cpp commonIncludes.h
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
 prime.s: %.s : %.cpp commonIncludes.h
