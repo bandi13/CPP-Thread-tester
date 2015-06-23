@@ -52,14 +52,14 @@ foreach my $file (<"data/*.csv">) {
 		$compID =~ s/-2015-.*//g;
 		if(defined($comps{$compID})) { $compID = $comps{$compID}; }
 		my $testID = $file;
-		$testID =~ s/.*\d-//g;
+		$testID =~ s/.*-\d+-//g;
 		$testID =~ s/\.csv$//g;
 		my $ylabel = "time";
 		my $xlabel = "Number of threads";
 		my $totalPoints = `tail -n 1 $file | awk '{ print NF}'`;
 		chomp($totalPoints);
 		if($testID =~ m/speedup/) { $ylabel = "speedup"; $testID =~ s/-speedup//g; }
-		if($testID =~ m/difficulty/) { $xlabel = "difficulty"; $testID =~ s/-difficulty//g; }
+		if($testID =~ m/difficulty/) { $xlabel = "difficulty"; $testID =~ s/-difficulty.*//g; }
 		my $PLOT;
 		open $PLOT, '|-','gnuplot';
 		print $PLOT <<EOF;

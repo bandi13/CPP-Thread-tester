@@ -13,6 +13,9 @@ main_asmProc:	main.cpp asmProc.cpp commonIncludes.h
 main_prime:	main.cpp prime.cpp commonIncludes.h
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
+prime.s: %.s : %.cpp commonIncludes.h
+	$(CXX) $(CXXFLAGS) -o $@ -S $<
+
 asmProc.s: %.s : %.cpp commonIncludes.h
 	$(CXX) $(CXXFLAGS) -o $@ -S $<
 
@@ -20,4 +23,4 @@ debug: CXXFLAGS += -Og -pg
 debug: main
 
 clean:
-	rm -f $(TARGET) asmProc.s *.o
+	rm -f $(TARGET) *.s *.o
